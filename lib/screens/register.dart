@@ -21,6 +21,9 @@ class _RegisterState extends State<Register> {
             return 'Please fill Your Name in the Blank';
           }
         },
+        onSaved: (String value) {
+          name = value;
+        },
       ),
     );
   }
@@ -31,13 +34,17 @@ class _RegisterState extends State<Register> {
         decoration: InputDecoration(
             labelText: 'Email :',
             hintText: 'you@email.com',
-            icon: Icon(Icons.email)),validator: (String value){
-              if (value.length == 0) {
-                return 'Please Fill Email in the Blank';
-              } else if (!((value.contains('@')) && (value.contains('.')))) {
-                return 'Please Type Format Email';
-              }
-            },
+            icon: Icon(Icons.email)),
+        validator: (String value) {
+          if (value.length == 0) {
+            return 'Please Fill Email in the Blank';
+          } else if (!((value.contains('@')) && (value.contains('.')))) {
+            return 'Please Type Format Email';
+          }
+        },
+        onSaved: (String value) {
+          email = value;
+        },
       ),
     );
   }
@@ -49,6 +56,14 @@ class _RegisterState extends State<Register> {
             labelText: 'Password :',
             hintText: 'More 6 Charactor',
             icon: Icon(Icons.lock)),
+        validator: (String value) {
+          if (value.length <= 5) {
+            return 'Please More 6 Charactor';
+          }
+        },
+        onSaved: (String value) {
+          password = value;
+        },
       ),
     );
   }
@@ -65,7 +80,9 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  void uplodaValueToFirebase() {}
+  void uplodaValueToFirebase() {
+    print('name = $name, email = $email, password = $password');
+  }
 
   @override
   Widget build(BuildContext context) {
