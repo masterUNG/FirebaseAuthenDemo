@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
 
 class Register extends StatefulWidget {
   @override
@@ -8,6 +10,9 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   final formKey = GlobalKey<FormState>();
   String name, email, password;
+
+  // for Firebase
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   Widget nameTextFormField() {
     return Container(
@@ -80,8 +85,25 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  void uplodaValueToFirebase() {
+  void uplodaValueToFirebase() async {
     print('name = $name, email = $email, password = $password');
+    final FirebaseUser firebaseUser = await firebaseAuth
+        .createUserWithEmailAndPassword(email: email, password: password)
+        .then((user) {
+      print('SignUp Success');
+    }).catchError((error) {
+      print('Error ==> $error');
+    });
+
+    await firebaseAuth.currentUser().then((value){
+      UserUpdateInfo userUpdateInfo = UserUpdateInfo();
+      userUpdateInfo.displayName = name;
+      value.updateProfile(userUpdateInfo);
+      print('DisplayName ==> ${firebaseUser.displayName}');
+    });
+
+    
+
   }
 
   @override
@@ -94,6 +116,11 @@ class _RegisterState extends State<Register> {
         body: Form(
           key: formKey,
           child: Container(
+            decoration: BoxDecoration(
+                gradient: RadialGradient(
+                    radius: 1.2,
+                    colors: [Colors.white, Colors.blue],
+                    center: Alignment(0, -1))),
             padding: EdgeInsets.only(left: 50.0, right: 50.0, top: 50.0),
             child: Column(
               children: <Widget>[

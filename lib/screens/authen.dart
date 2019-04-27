@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './register.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Authen extends StatefulWidget {
   @override
@@ -8,6 +9,11 @@ class Authen extends StatefulWidget {
 
 class _AuthenState extends State<Authen> {
   String appName = "Firebase Authen";
+  final formKey = GlobalKey<FormState>();
+  String email, password;
+
+  // For Firebase
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   Widget showAppName() {
     return Text(
@@ -22,6 +28,16 @@ class _AuthenState extends State<Authen> {
           labelText: 'Email :',
           hintText: 'you@email.com',
           icon: Icon(Icons.email)),
+      validator: (String value) {
+        if (value.length == 0) {
+          return 'Please Type Your Email';
+        } else if (!((value.contains('@')) && (value.contains('.')))) {
+          return 'Please Type Format you@email.com';
+        }
+      },
+      onSaved: (String value) {
+        email = value;
+      },
     );
   }
 
@@ -31,6 +47,16 @@ class _AuthenState extends State<Authen> {
           icon: Icon(Icons.lock),
           labelText: 'Password :',
           hintText: 'More 6 Charactor'),
+      validator: (String value) {
+        if (value.length == 0) {
+          return 'Please Type Your Password';
+        } else if (value.length <= 5) {
+          return 'Password More 5 Charactor';
+        }
+      },
+      onSaved: (String value) {
+        password = value;
+      },
     );
   }
 
@@ -46,8 +72,25 @@ class _AuthenState extends State<Authen> {
         'Sign In',
         style: TextStyle(color: Colors.white),
       ),
-      onPressed: () {},
+      onPressed: () {
+        if (formKey.currentState.validate()) {
+          formKey.currentState.save();
+          checkAuthen();
+        }
+      },
     );
+  }
+
+  void checkAuthen() async {
+    print('email = $email, password = $password');
+
+    FirebaseUser firebaseUser = await firebaseAuth
+        .signInWithEmailAndPassword(email: email, password: password)
+        .then((value) {
+      print('value1 ==> $value');
+    }).catchError((value) {
+      print('value2 ==> $value');
+    });
   }
 
   Widget singUpButton(BuildContext context) {
@@ -65,7 +108,7 @@ class _AuthenState extends State<Authen> {
       onPressed: () {
         var registerRoute =
             MaterialPageRoute(builder: (BuildContext context) => Register());
-            Navigator.of(context).push(registerRoute);
+        Navigator.of(context).push(registerRoute);
       },
     );
   }
@@ -73,7 +116,9 @@ class _AuthenState extends State<Authen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+        body: Form(
+      key: formKey,
+      child: Container(
         decoration: BoxDecoration(
             gradient: RadialGradient(
                 center: Alignment(0, -1),
@@ -108,6 +153,6 @@ class _AuthenState extends State<Authen> {
           ],
         ),
       ),
-    );
+    ));
   }
 }
